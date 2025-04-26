@@ -7,8 +7,45 @@ from selenium.webdriver.common.by import By
 import time
 import subprocess
 import sys
+import requests
 from pathlib import Path
+import shutil
+import tempfile
 
+
+APP_VERSION = "1.0.0"
+VERSION_URL = "https://github.com/trungtien2410/hang-ra-quay/blob/main/version.txt"
+UPDATE_URL = "https://github.com/trungtien2410/hang-ra-quay/releases/download/V1.0.0/Hang.ra.qu.y.exe"
+
+def check_for_updates():
+    try:
+        response = requests.get(VERSION_URL, timeout=5)
+        latest_version = response.text.strip()
+        if latest_version != APP_VERSION:
+            return latest_version
+    except Exception as e:
+        print(f"Update check failed: {e}")
+    return None
+
+def prompt_update(latest_version):
+    reply = QtWidgets.QMessageBox.question(None, "Cập nhật mới",
+        f"Có phiên bản mới {latest_version}. Bạn có muốn cập nhật không?",
+        QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+    if reply == QtWidgets.QMessageBox.StandardButton.Yes:
+        download_and_install()
+
+def download_and_install():
+    try:
+        r = requests.get(UPDATE_URL, stream=True)
+        if r.status_code == 200:
+            temp_dir = tempfile.gettempdir()
+            file_path = Path(temp_dir) / "update_installer.exe"
+            with open(file_path, 'wb') as f:
+                shutil.copyfileobj(r.raw, f)
+            subprocess.Popen([str(file_path)], shell=True)
+            QtWidgets.QApplication.quit()
+    except Exception as e:
+        QtWidgets.QMessageBox.critical(None, "Lỗi cập nhật", f"Không thể tải bản cập nhật: {e}")
 # Lấy đường dẫn đầu vào
 def resource_path(relative_path):
     if hasattr(sys, '_MEIPASS'):
@@ -232,6 +269,9 @@ class Ui_MainWindow(object):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
+    latest = check_for_updates()
+    if latest:
+        prompt_update(latest)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
