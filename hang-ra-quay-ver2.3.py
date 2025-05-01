@@ -17,7 +17,7 @@ from docx.shared import Pt
 
 APP_VERSION = "1.1.0"
 VERSION_URL = "https://raw.githubusercontent.com/trungtien2410/hang-ra-quay/main/version.txt"
-UPDATE_URL = "https://github.com/trungtien2410/hang-ra-quay/releases/download/V1.1.0/hang-ra-quay.exe"
+UPDATE_URL = "https://github.com/trungtien2410/hang-ra-quay/releases/download/V1.1.0/hang-ra-quay-ver2.3.exe"
 
 def check_for_updates():
     try:
